@@ -1,0 +1,3 @@
+rootProject.name = 'AWSCloudFormationResourceProvidersCleanRooms'
+
+include 'aws-cleanrooms-collaboration', 'aws-cleanrooms-configuredtable', 'aws-cleanrooms-configuredtableassociation', 'aws-cleanrooms-membership'

@@ -1,0 +1,42 @@
+# IDE configurations
+*.swp
+*.iml
+.idea
+
+# auto-generated files
+target/
+
+#logs
+rpdk.log
+ada.log
+
+# macOS
+.DS_Store
+._*
+
+# Maven outputs
+.classpath
+
+# IntelliJ
+*.iml
+.idea
+out.java
+out/
+.settings
+.project
+
+# auto-generated files
+target/
+*.zip
+.gradle
+build/
+build
+gradle/
+gradlew
+gradlew.bat
+
+# test files
+stack.json
+
+# contains credentials
+sam-tests/
