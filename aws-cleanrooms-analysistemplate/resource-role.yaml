@@ -21,7 +21,7 @@ Resources:
                   Ref: AWS::AccountId
               StringLike:
                 aws:SourceArn:
-                  Fn::Sub: arn:${AWS::Partition}:cloudformation:${AWS::Region}:${AWS::AccountId}:type/resource/AWS-CleanRooms-Membership/*
+                  Fn::Sub: arn:${AWS::Partition}:cloudformation:${AWS::Region}:${AWS::AccountId}:type/resource/AWS-CleanRooms-AnalysisTemplate/*
       Path: "/"
       Policies:
         - PolicyName: ResourceTypePolicy
@@ -30,24 +30,14 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                - "cleanrooms:CreateMembership"
-                - "cleanrooms:DeleteMembership"
-                - "cleanrooms:GetMembership"
-                - "cleanrooms:ListMemberships"
+                - "cleanrooms:CreateAnalysisTemplate"
+                - "cleanrooms:DeleteAnalysisTemplate"
+                - "cleanrooms:GetAnalysisTemplate"
+                - "cleanrooms:ListAnalysisTemplates"
                 - "cleanrooms:ListTagsForResource"
                 - "cleanrooms:TagResource"
                 - "cleanrooms:UntagResource"
-                - "cleanrooms:UpdateMembership"
-                - "iam:PassRole"
-                - "logs:CreateLogDelivery"
-                - "logs:CreateLogGroup"
-                - "logs:DeleteLogDelivery"
-                - "logs:DescribeLogGroups"
-                - "logs:DescribeResourcePolicies"
-                - "logs:GetLogDelivery"
-                - "logs:ListLogDeliveries"
-                - "logs:PutResourcePolicy"
-                - "logs:UpdateLogDelivery"
+                - "cleanrooms:UpdateAnalysisTemplate"
                 Resource: "*"
 Outputs:
   ExecutionRoleArn:

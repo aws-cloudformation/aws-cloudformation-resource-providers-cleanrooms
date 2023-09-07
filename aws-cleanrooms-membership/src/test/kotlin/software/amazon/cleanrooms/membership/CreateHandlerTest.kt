@@ -1,6 +1,7 @@
 package software.amazon.cleanrooms.membership
 
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
@@ -32,13 +33,13 @@ import software.amazon.cloudformation.proxy.ResourceHandlerRequest
 import java.util.function.Function
 
 private val TEST_MEMBERSHIP_RESOURCE_MODEL_AFTER_CREATE_COMPLETE = TEST_MEMBERSHIP_RESPONSE_WITH_REQUIRED_FIELDS.toResourceModel()
-
-private val TEST_MEMBERSHIP_INPUT_RESOURCE_MODEL_WITH_ALL_ARGS = TEST_BASE_MEMBERSHIP_WITH_REQUIRED_FIELDS.toResourceModel()
-
+private val TEST_MEMBERSHIP_RESOURCE_MODEL_WITH_RESULT_CONFIG_AFTER_CREATE_COMPLETE = TEST_MEMBERSHIP_RESPONSE_WITH_ALL_ARGS.toResourceModel()
 
 private val STACK_LEVEL_TAGS = mapOf("stackTag" to "stackTagValue")
 
 private val TEST_CREATE_INPUT_RESOURCE_MODEL = TEST_BASE_MEMBERSHIP_WITH_REQUIRED_FIELDS.toResourceModel()
+
+private val TEST_CREATE_INPUT_RESOURCE_MODEL_WITH_RESULT_CONFIG = TEST_MEMBERSHIP_WITH_RESULT_CONFIGURATION.toResourceModel()
 
 class CreateHandlerTest {
 
@@ -85,6 +86,17 @@ class CreateHandlerTest {
                 expectedResourceModel = TEST_MEMBERSHIP_RESOURCE_MODEL_AFTER_CREATE_COMPLETE.toBuilder()
                     .tags((TEST_MEMBERSHIP_TAGS + STACK_LEVEL_TAGS).toResourceModelTags())
                     .build()
+            ),
+            Args(
+                testName = "Membership with result configuration for reciprocal query works successfully. ",
+                requestInputModel = TEST_CREATE_INPUT_RESOURCE_MODEL_WITH_RESULT_CONFIG,
+                inputResourceLevelTags = TEST_MEMBERSHIP_TAGS,
+                inputStackLevelTags = STACK_LEVEL_TAGS,
+                membershipFromApi = TEST_MEMBERSHIP_RESPONSE_WITH_ALL_ARGS,
+                tagsFromApi = TEST_MEMBERSHIP_TAGS + STACK_LEVEL_TAGS + TEST_SYSTEM_TAGS,
+                expectedResourceModel = TEST_MEMBERSHIP_RESOURCE_MODEL_WITH_RESULT_CONFIG_AFTER_CREATE_COMPLETE.toBuilder()
+                    .tags((TEST_MEMBERSHIP_TAGS + STACK_LEVEL_TAGS).toResourceModelTags())
+                    .build()
             )
         )
     }
@@ -106,6 +118,8 @@ class CreateHandlerTest {
         } returns ListTagsForResourceResponse.builder().tags(TEST_SYSTEM_TAGS).build()
 
     }
+
+
 
     @ParameterizedTest
     @MethodSource("createHandlerSuccessTestData")
@@ -162,7 +176,7 @@ class CreateHandlerTest {
                 )
                 assertThat(status).isEqualTo(OperationStatus.IN_PROGRESS)
                 assertThat(callbackDelaySeconds).isEqualTo(HandlerCommon.CALLBACK_DELAY_IN_SECONDS)
-                assertThat(resourceModel).isEqualTo(TEST_MEMBERSHIP_RESOURCE_MODEL_AFTER_CREATE_COMPLETE)
+                assertThat(resourceModel).isEqualTo(membershipFromApi.toResourceModel())
                 assertThat(resourceModel.getMembershipIdFromPrimaryIdentifier()).isEqualTo(TEST_MEMBERSHIP_RESOURCE_MODEL_AFTER_CREATE_COMPLETE.getMembershipIdFromPrimaryIdentifier())
                 assertThat(resourceModel.arn).isEqualTo(TEST_MEMBERSHIP_RESOURCE_MODEL_AFTER_CREATE_COMPLETE.arn)
             }

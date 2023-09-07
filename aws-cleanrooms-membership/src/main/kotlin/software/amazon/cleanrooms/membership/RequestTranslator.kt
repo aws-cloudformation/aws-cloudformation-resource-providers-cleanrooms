@@ -13,9 +13,12 @@ import software.amazon.awssdk.services.cleanrooms.model.ListMembershipsResponse
 import software.amazon.awssdk.services.cleanrooms.model.ListTagsForResourceRequest
 import software.amazon.awssdk.services.cleanrooms.model.MemberAbility
 import software.amazon.awssdk.services.cleanrooms.model.Membership
+import software.amazon.awssdk.services.cleanrooms.model.MembershipProtectedQueryOutputConfiguration
+import software.amazon.awssdk.services.cleanrooms.model.MembershipProtectedQueryResultConfiguration
 import software.amazon.awssdk.services.cleanrooms.model.TagResourceRequest
 import software.amazon.awssdk.services.cleanrooms.model.UntagResourceRequest
 import software.amazon.awssdk.services.cleanrooms.model.UpdateMembershipRequest
+import software.amazon.cleanrooms.membership.typemapper.toDefaultResultConfiguration
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy
 
 
@@ -40,10 +43,14 @@ fun ResourceModel.getMembershipIdFromPrimaryIdentifier(): String {
 }
 
 fun createMembership(model: ResourceModel, tagsFromRequest: Map<String, String>, proxy: AmazonWebServicesClientProxy, cleanRoomsClient: CleanRoomsClient): Membership = with(model) {
-    val createMembershipRequest = CreateMembershipRequest.builder()
-        .collaborationIdentifier(collaborationIdentifier)
-        .queryLogStatus(queryLogStatus)
-        .tags(tagsFromRequest)
+    val createMembershipRequest = CreateMembershipRequest.builder().apply {
+        collaborationIdentifier(collaborationIdentifier)
+        queryLogStatus(queryLogStatus)
+        tags(tagsFromRequest)
+        model.defaultResultConfiguration?.let {
+            defaultResultConfiguration(model.toDefaultResultConfiguration())
+        }
+        }
         .build();
 
     val createMembershipResponse = proxy.injectCredentialsAndInvokeV2(
@@ -55,10 +62,13 @@ fun createMembership(model: ResourceModel, tagsFromRequest: Map<String, String>,
 }
 
 fun updateMembership(model: ResourceModel, proxy: AmazonWebServicesClientProxy, cleanRoomsClient: CleanRoomsClient): Membership = with(model) {
-    val updateMembershipRequest = UpdateMembershipRequest.builder()
-        .membershipIdentifier(membershipIdentifier)
-        .queryLogStatus(queryLogStatus)
-        .build();
+    val updateMembershipRequest = UpdateMembershipRequest.builder().apply {
+        membershipIdentifier(membershipIdentifier)
+        queryLogStatus(queryLogStatus)
+        model.defaultResultConfiguration?.let {
+            defaultResultConfiguration(model.toDefaultResultConfiguration())
+            }
+        }.build()
 
     val updateMembershipResponse = proxy.injectCredentialsAndInvokeV2(
         updateMembershipRequest,

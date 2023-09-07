@@ -5,10 +5,12 @@ import software.amazon.cleanrooms.configuredtable.AggregateColumn
 import software.amazon.cleanrooms.configuredtable.AggregationConstraint
 import software.amazon.cleanrooms.configuredtable.AnalysisRule
 import software.amazon.cleanrooms.configuredtable.AnalysisRuleAggregation
+import software.amazon.cleanrooms.configuredtable.AnalysisRuleCustom
 import software.amazon.cleanrooms.configuredtable.AnalysisRuleList
 import software.amazon.cleanrooms.configuredtable.ConfiguredTableAnalysisRulePolicy
 import software.amazon.cleanrooms.configuredtable.ConfiguredTableAnalysisRulePolicyV1
 import software.amazon.awssdk.services.cleanrooms.model.AnalysisRuleAggregation as SdkAnalysisRuleAggregation
+import software.amazon.awssdk.services.cleanrooms.model.AnalysisRuleCustom as SdkAnalysisRuleCustom
 import software.amazon.awssdk.services.cleanrooms.model.AnalysisRuleList as SdkAnalysisRuleList
 import software.amazon.awssdk.services.cleanrooms.model.ConfiguredTableAnalysisRulePolicyV1 as SdkConfiguredTableAnalysisRulePolicyV1
 
@@ -36,12 +38,16 @@ private fun SdkConfiguredTableAnalysisRulePolicyV1.toConfiguredTableAnalysisRule
             ConfiguredTableAnalysisRulePolicyV1.builder()
                 .list(list().toAnalysisRuleList())
                 .build()
+        SdkConfiguredTableAnalysisRulePolicyV1.Type.CUSTOM ->
+            ConfiguredTableAnalysisRulePolicyV1.builder()
+                .custom(custom().toAnalysisRuleCustom())
+                .build()
         else -> throw Exception("Unsupported AnalysisRule Type")
     }
 }
 
 private fun SdkAnalysisRuleAggregation.toAnalysisRuleAggregation(): AnalysisRuleAggregation {
-    return AnalysisRuleAggregation.builder()
+    val analysisRuleAggregationBuilder = AnalysisRuleAggregation.builder()
         .joinColumns(joinColumns())
         .joinRequired(joinRequiredAsString())
         .dimensionColumns(dimensionColumns())
@@ -67,12 +73,32 @@ private fun SdkAnalysisRuleAggregation.toAnalysisRuleAggregation(): AnalysisRule
                 scalarFunctions.name
             }
         )
-        .build()
+    if (allowedJoinOperatorsAsStrings().isNullOrEmpty()) {
+        return analysisRuleAggregationBuilder.build()
+    }
+    return analysisRuleAggregationBuilder.allowedJoinOperators(allowedJoinOperatorsAsStrings()).build()
 }
 
 private fun SdkAnalysisRuleList.toAnalysisRuleList(): AnalysisRuleList {
-    return AnalysisRuleList.builder()
+    val analysisRuleListBuilder = AnalysisRuleList.builder()
         .joinColumns(joinColumns())
-        .listColumns(listColumns())
+        .listColumns(listColumns());
+    if (allowedJoinOperatorsAsStrings().isNullOrEmpty()) {
+        return analysisRuleListBuilder.build()
+    }
+    return analysisRuleListBuilder.allowedJoinOperators(allowedJoinOperatorsAsStrings()).build()
+
+}
+
+private fun SdkAnalysisRuleCustom.toAnalysisRuleCustom(): AnalysisRuleCustom {
+    return AnalysisRuleCustom.builder()
+        .apply {
+            allowedAnalyses(allowedAnalyses())
+            allowedAnalysisProviders()?.let {
+                if (it.isNotEmpty()) {
+                    allowedAnalysisProviders(it)
+                }
+            }
+        }
         .build()
 }

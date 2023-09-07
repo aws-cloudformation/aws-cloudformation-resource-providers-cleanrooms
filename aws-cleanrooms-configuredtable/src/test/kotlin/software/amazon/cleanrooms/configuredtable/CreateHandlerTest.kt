@@ -75,6 +75,30 @@ class CreateHandlerTest {
                 expectedResourceModel = TEST_RESOURCE_MODEL_WITH_REQUIRED_LIST_ANALYSIS_RULE
             ),
             Args(
+                testName = "Configured Table with required fields and Custom analysis rule with allowed analyses creates successfully.",
+                requestInputModel = TEST_CREATE_RESOURCE_MODEL_WITH_REQUIRED_CUSTOM_ANALYSIS_RULE_ANALYSES,
+                configuredTableFromApi = TEST_CONFIGURED_TABLE_WITH_CUSTOM_ANALYSIS_RULE,
+                analysisRuleFromApi = TEST_CUSTOM_ANALYSIS_RULE_ANALYSES,
+                tagsFromApi = TEST_SYSTEM_TAGS,
+                expectedResourceModel = TEST_RESOURCE_MODEL_WITH_REQUIRED_CUSTOM_ANALYSIS_RULE_ANALYSES
+            ),
+            Args(
+                testName = "Configured Table with required fields and Custom analysis rule with allowed providers creates successfully.",
+                requestInputModel = TEST_CREATE_RESOURCE_MODEL_WITH_REQUIRED_CUSTOM_ANALYSIS_RULE_PROVIDERS,
+                configuredTableFromApi = TEST_CONFIGURED_TABLE_WITH_CUSTOM_ANALYSIS_RULE,
+                analysisRuleFromApi = TEST_CUSTOM_ANALYSIS_RULE_PROVIDERS,
+                tagsFromApi = TEST_SYSTEM_TAGS,
+                expectedResourceModel = TEST_RESOURCE_MODEL_WITH_REQUIRED_CUSTOM_ANALYSIS_RULE_PROVIDERS
+            ),
+            Args(
+                testName = "Configured Table with only OR field set in List analysis rule creates successfully.",
+                requestInputModel = TEST_CREATE_RESOURCE_MODEL_WITH_OR_JOIN_OPERATOR_LIST_ANALYSIS_RULE,
+                configuredTableFromApi = TEST_CONFIGURED_TABLE_WITH_LIST_ANALYSIS_RULE,
+                analysisRuleFromApi = TEST_ONLY_OR_LIST_ANALYSIS_RULE,
+                tagsFromApi = TEST_SYSTEM_TAGS,
+                expectedResourceModel = TEST_RESOURCE_MODEL_OR_JOIN_OPERATOR_REQUIRED_LIST_ANALYSIS_RULE
+            ),
+            Args(
                 testName = "Configured Table with required fields and tags reads successfully.",
                 requestInputModel = TEST_RESOURCE_MODEL_REQUIRED_FIELDS_WITH_TAGS,
                 configuredTableFromApi = TEST_CONFIGURED_TABLE_REQUIRED_FIELDS,

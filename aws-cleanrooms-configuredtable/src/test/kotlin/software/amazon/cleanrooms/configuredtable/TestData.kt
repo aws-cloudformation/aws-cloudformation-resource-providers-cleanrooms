@@ -15,6 +15,7 @@ import software.amazon.awssdk.services.cleanrooms.model.ScalarFunctions
 import software.amazon.awssdk.services.cleanrooms.model.GlueTableReference as SdkGlueTableReference
 import software.amazon.awssdk.services.cleanrooms.model.TableReference as SdkTableReference
 import java.time.Instant
+import software.amazon.awssdk.services.cleanrooms.model.AnalysisRuleCustom as SdkAnalysisRuleCustom
 
 
 const val TEST_NEXT_TOKEN = "TestNextToken"
@@ -40,6 +41,8 @@ private val aggregationAnalysisRuleType = "AGGREGATION"
 private val listAnalysisRuleType = "LIST"
 private val listColumns = listOf("salesdate")
 private val joinColumns = listOf("totalpurchasesales")
+private val allAllowedJoinOperators = listOf("OR", "AND")
+private val orAllowedJoinOperator = listOf("OR")
 private val joinRequired = "QUERY_RUNNER"
 private val dimensionColumns = listOf("salesdate", "totalpurchasesales")
 private val aggregateColumnNames = listOf("userid")
@@ -48,6 +51,11 @@ private val constraintColumnName = "userid"
 private val constraintColumnType = "COUNT_DISTINCT"
 private val constraintMinimum = 100
 private val scalarFunction = ScalarFunctions.ABS
+
+private val customAnalysisRuleType = "CUSTOM"
+private val allowedAnalysis = "analysisTemplateArn"
+private val allowedAnalysisAny = "ANY_QUERY"
+private val allowedProviders = listOf("113503033577")
 
 val TEST_SYSTEM_TAGS = mapOf(
     "aws:cloudformation:stackname" to "testname",
@@ -108,6 +116,10 @@ val TEST_CONFIGURED_TABLE_WITH_LIST_ANALYSIS_RULE: ConfiguredTable = TEST_CONFIG
     it.analysisRuleTypes(listOf(ConfiguredTableAnalysisRuleType.LIST))
 }
 
+val TEST_CONFIGURED_TABLE_WITH_CUSTOM_ANALYSIS_RULE: ConfiguredTable = TEST_CONFIGURED_TABLE.copy {
+    it.analysisRuleTypes(listOf(ConfiguredTableAnalysisRuleType.CUSTOM))
+}
+
 val TEST_GET_CONFIGURED_TABLE_WITH_AGG_ANALYSIS_RULE_RESPONSE: GetConfiguredTableResponse =
     GetConfiguredTableResponse.builder()
         .configuredTable(TEST_CONFIGURED_TABLE_WITH_AGG_ANALYSIS_RULE)
@@ -122,6 +134,7 @@ val TEST_AGG_ANALYSIS_RULE: ConfiguredTableAnalysisRule = ConfiguredTableAnalysi
                     .aggregation(
                         SdkAnalysisRuleAggregation.builder()
                             .joinColumns(joinColumns)
+                            .allowedJoinOperatorsWithStrings(allAllowedJoinOperators)
                             .joinRequired(joinRequired)
                             .dimensionColumns(dimensionColumns)
                             .aggregateColumns(
@@ -192,6 +205,61 @@ val TEST_LIST_ANALYSIS_RULE: ConfiguredTableAnalysisRule = ConfiguredTableAnalys
                         SdkAnalysisRuleList.builder()
                             .listColumns(listColumns)
                             .joinColumns(joinColumns)
+                            .allowedJoinOperatorsWithStrings(allAllowedJoinOperators)
+                            .build()
+                    )
+                    .build()
+            )
+            .build()
+    )
+    .build()
+
+val TEST_CUSTOM_ANALYSIS_RULE_ANALYSES: ConfiguredTableAnalysisRule = ConfiguredTableAnalysisRule.builder()
+    .type(customAnalysisRuleType)
+    .policy(
+        SdkConfiguredTableAnalysisRulePolicy.builder()
+            .v1(
+                SdkConfiguredTableAnalysisRulePolicyV1.builder()
+                    .custom(
+                        SdkAnalysisRuleCustom.builder()
+                            .allowedAnalyses(allowedAnalysis)
+                            .build()
+                    )
+                    .build()
+            )
+            .build()
+    )
+    .build()
+
+val TEST_CUSTOM_ANALYSIS_RULE_PROVIDERS: ConfiguredTableAnalysisRule = ConfiguredTableAnalysisRule.builder()
+    .type(customAnalysisRuleType)
+    .policy(
+        SdkConfiguredTableAnalysisRulePolicy.builder()
+            .v1(
+                SdkConfiguredTableAnalysisRulePolicyV1.builder()
+                    .custom(
+                        SdkAnalysisRuleCustom.builder()
+                            .allowedAnalyses(allowedAnalysisAny)
+                            .allowedAnalysisProviders(allowedProviders)
+                            .build()
+                    )
+                    .build()
+            )
+            .build()
+    )
+    .build()
+
+val TEST_ONLY_OR_LIST_ANALYSIS_RULE: ConfiguredTableAnalysisRule = ConfiguredTableAnalysisRule.builder()
+    .type(listAnalysisRuleType)
+    .policy(
+        SdkConfiguredTableAnalysisRulePolicy.builder()
+            .v1(
+                SdkConfiguredTableAnalysisRulePolicyV1.builder()
+                    .list(
+                        SdkAnalysisRuleList.builder()
+                            .listColumns(listColumns)
+                            .joinColumns(joinColumns)
+                            .allowedJoinOperatorsWithStrings(orAllowedJoinOperator)
                             .build()
                     )
                     .build()
@@ -209,6 +277,7 @@ val TEST_RESOURCE_MODEL_AGG_ANALYSIS_RULE: AnalysisRule = AnalysisRule.builder()
                     .aggregation(
                         AnalysisRuleAggregation.builder()
                             .joinColumns(joinColumns)
+                            .allowedJoinOperators(allAllowedJoinOperators)
                             .joinRequired(joinRequired)
                             .dimensionColumns(dimensionColumns)
                             .aggregateColumns(
@@ -279,6 +348,62 @@ val TEST_RESOURCE_MODEL_LIST_ANALYSIS_RULE: AnalysisRule = AnalysisRule.builder(
                         AnalysisRuleList.builder()
                             .listColumns(listColumns)
                             .joinColumns(joinColumns)
+                            .allowedJoinOperators(allAllowedJoinOperators)
+                            .build()
+                    )
+                    .build()
+            )
+            .build()
+    )
+    .build()
+
+val TEST_RESOURCE_MODEL_CUSTOM_ANALYSIS_RULE_ALLOWED_ANALYSIS: AnalysisRule = AnalysisRule.builder()
+    .type(customAnalysisRuleType)
+    .policy(
+        ConfiguredTableAnalysisRulePolicy.builder()
+            .v1(
+                ConfiguredTableAnalysisRulePolicyV1.builder()
+                    .custom(
+                        AnalysisRuleCustom.builder()
+                            .allowedAnalyses(listOf(allowedAnalysis))
+                            .build()
+                    )
+                    .build()
+            )
+            .build()
+    )
+    .build()
+
+
+val TEST_RESOURCE_MODEL_CUSTOM_ANALYSIS_RULE_ALLOWED_PROVIDERS: AnalysisRule = AnalysisRule.builder()
+    .type(customAnalysisRuleType)
+    .policy(
+        ConfiguredTableAnalysisRulePolicy.builder()
+            .v1(
+                ConfiguredTableAnalysisRulePolicyV1.builder()
+                    .custom(
+                        AnalysisRuleCustom.builder()
+                            .allowedAnalyses(listOf(allowedAnalysisAny))
+                            .allowedAnalysisProviders(allowedProviders)
+                            .build()
+                    )
+                    .build()
+            )
+            .build()
+    )
+    .build()
+
+val TEST_RESOURCE_MODEL_OR_JOIN_OPERATOR_LIST_ANALYSIS_RULE: AnalysisRule = AnalysisRule.builder()
+    .type(listAnalysisRuleType)
+    .policy(
+        ConfiguredTableAnalysisRulePolicy.builder()
+            .v1(
+                ConfiguredTableAnalysisRulePolicyV1.builder()
+                    .list(
+                        AnalysisRuleList.builder()
+                            .listColumns(listColumns)
+                            .joinColumns(joinColumns)
+                            .allowedJoinOperators(orAllowedJoinOperator)
                             .build()
                     )
                     .build()
@@ -490,6 +615,63 @@ val TEST_CREATE_RESOURCE_MODEL_WITH_REQUIRED_LIST_ANALYSIS_RULE: ResourceModel =
     .tags(emptySet())
     .build()
 
+val TEST_CREATE_RESOURCE_MODEL_WITH_REQUIRED_CUSTOM_ANALYSIS_RULE_ANALYSES: ResourceModel = ResourceModel.builder()
+    .name(TEST_CONFIGURED_TABLE_NAME)
+    .description(TEST_CONFIGURED_TABLE_DESC)
+    .analysisMethod(TEST_CONFIGURED_TABLE_ANALYSIS_METHOD)
+    .allowedColumns(TEST_CONFIGURED_TABLE_ALLOWED_COLUMNS)
+    .tableReference(
+        TableReference.builder()
+            .glue(
+                GlueTableReference.builder()
+                    .databaseName(glueDbName)
+                    .tableName(glueTableName)
+                    .build()
+            )
+            .build()
+    )
+    .analysisRules(listOf(TEST_RESOURCE_MODEL_CUSTOM_ANALYSIS_RULE_ALLOWED_ANALYSIS))
+    .tags(emptySet())
+    .build()
+
+val TEST_CREATE_RESOURCE_MODEL_WITH_REQUIRED_CUSTOM_ANALYSIS_RULE_PROVIDERS: ResourceModel = ResourceModel.builder()
+    .name(TEST_CONFIGURED_TABLE_NAME)
+    .description(TEST_CONFIGURED_TABLE_DESC)
+    .analysisMethod(TEST_CONFIGURED_TABLE_ANALYSIS_METHOD)
+    .allowedColumns(TEST_CONFIGURED_TABLE_ALLOWED_COLUMNS)
+    .tableReference(
+        TableReference.builder()
+            .glue(
+                GlueTableReference.builder()
+                    .databaseName(glueDbName)
+                    .tableName(glueTableName)
+                    .build()
+            )
+            .build()
+    )
+    .analysisRules(listOf(TEST_RESOURCE_MODEL_CUSTOM_ANALYSIS_RULE_ALLOWED_PROVIDERS))
+    .tags(emptySet())
+    .build()
+
+val TEST_CREATE_RESOURCE_MODEL_WITH_OR_JOIN_OPERATOR_LIST_ANALYSIS_RULE: ResourceModel = ResourceModel.builder()
+    .name(TEST_CONFIGURED_TABLE_NAME)
+    .description(TEST_CONFIGURED_TABLE_DESC)
+    .analysisMethod(TEST_CONFIGURED_TABLE_ANALYSIS_METHOD)
+    .allowedColumns(TEST_CONFIGURED_TABLE_ALLOWED_COLUMNS)
+    .tableReference(
+        TableReference.builder()
+            .glue(
+                GlueTableReference.builder()
+                    .databaseName(glueDbName)
+                    .tableName(glueTableName)
+                    .build()
+            )
+            .build()
+    )
+    .analysisRules(listOf(TEST_RESOURCE_MODEL_OR_JOIN_OPERATOR_LIST_ANALYSIS_RULE))
+    .tags(emptySet())
+    .build()
+
 val TEST_RESOURCE_MODEL_WITH_REQUIRED_LIST_ANALYSIS_RULE: ResourceModel = ResourceModel.builder()
     .configuredTableIdentifier(TEST_CONFIGURED_TABLE_ID)
     .arn(TEST_CONFIGURED_TABLE_ARN)
@@ -508,6 +690,69 @@ val TEST_RESOURCE_MODEL_WITH_REQUIRED_LIST_ANALYSIS_RULE: ResourceModel = Resour
             .build()
     )
     .analysisRules(listOf(TEST_RESOURCE_MODEL_LIST_ANALYSIS_RULE))
+    .tags(emptySet())
+    .build()
+
+val TEST_RESOURCE_MODEL_WITH_REQUIRED_CUSTOM_ANALYSIS_RULE_ANALYSES: ResourceModel = ResourceModel.builder()
+    .configuredTableIdentifier(TEST_CONFIGURED_TABLE_ID)
+    .arn(TEST_CONFIGURED_TABLE_ARN)
+    .name(TEST_CONFIGURED_TABLE_NAME)
+    .description(TEST_CONFIGURED_TABLE_DESC)
+    .analysisMethod(TEST_CONFIGURED_TABLE_ANALYSIS_METHOD)
+    .allowedColumns(TEST_CONFIGURED_TABLE_ALLOWED_COLUMNS)
+    .tableReference(
+        TableReference.builder()
+            .glue(
+                GlueTableReference.builder()
+                    .databaseName(glueDbName)
+                    .tableName(glueTableName)
+                    .build()
+            )
+            .build()
+    )
+    .analysisRules(listOf(TEST_RESOURCE_MODEL_CUSTOM_ANALYSIS_RULE_ALLOWED_ANALYSIS))
+    .tags(emptySet())
+    .build()
+
+val TEST_RESOURCE_MODEL_WITH_REQUIRED_CUSTOM_ANALYSIS_RULE_PROVIDERS: ResourceModel = ResourceModel.builder()
+    .configuredTableIdentifier(TEST_CONFIGURED_TABLE_ID)
+    .arn(TEST_CONFIGURED_TABLE_ARN)
+    .name(TEST_CONFIGURED_TABLE_NAME)
+    .description(TEST_CONFIGURED_TABLE_DESC)
+    .analysisMethod(TEST_CONFIGURED_TABLE_ANALYSIS_METHOD)
+    .allowedColumns(TEST_CONFIGURED_TABLE_ALLOWED_COLUMNS)
+    .tableReference(
+        TableReference.builder()
+            .glue(
+                GlueTableReference.builder()
+                    .databaseName(glueDbName)
+                    .tableName(glueTableName)
+                    .build()
+            )
+            .build()
+    )
+    .analysisRules(listOf(TEST_RESOURCE_MODEL_CUSTOM_ANALYSIS_RULE_ALLOWED_PROVIDERS))
+    .tags(emptySet())
+    .build()
+
+val TEST_RESOURCE_MODEL_OR_JOIN_OPERATOR_REQUIRED_LIST_ANALYSIS_RULE: ResourceModel = ResourceModel.builder()
+    .configuredTableIdentifier(TEST_CONFIGURED_TABLE_ID)
+    .arn(TEST_CONFIGURED_TABLE_ARN)
+    .name(TEST_CONFIGURED_TABLE_NAME)
+    .description(TEST_CONFIGURED_TABLE_DESC)
+    .analysisMethod(TEST_CONFIGURED_TABLE_ANALYSIS_METHOD)
+    .allowedColumns(TEST_CONFIGURED_TABLE_ALLOWED_COLUMNS)
+    .tableReference(
+        TableReference.builder()
+            .glue(
+                GlueTableReference.builder()
+                    .databaseName(glueDbName)
+                    .tableName(glueTableName)
+                    .build()
+            )
+            .build()
+    )
+    .analysisRules(listOf(TEST_RESOURCE_MODEL_OR_JOIN_OPERATOR_LIST_ANALYSIS_RULE))
     .tags(emptySet())
     .build()
 

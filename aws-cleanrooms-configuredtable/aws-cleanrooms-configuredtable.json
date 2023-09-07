@@ -67,6 +67,13 @@
         "COUNT_DISTINCT"
       ]
     },
+    "JoinOperator": {
+      "type": "string",
+      "enum": [
+        "OR",
+        "AND"
+      ]
+    },
     "AnalysisMethod": {
       "type": "string",
       "enum": [
@@ -115,6 +122,14 @@
             "$ref": "#/definitions/AnalysisRuleColumnName"
           }
         },
+        "AllowedJoinOperators": {
+          "type": "array",
+          "insertionOrder": false,
+          "items": {
+            "$ref": "#/definitions/JoinOperator"
+          },
+          "maxItems": 2
+        },
         "JoinRequired": {
           "$ref": "#/definitions/JoinRequiredOption"
         },
@@ -161,6 +176,14 @@
           },
           "minItems": 1
         },
+        "AllowedJoinOperators": {
+          "type": "array",
+          "insertionOrder": false,
+          "items": {
+            "$ref": "#/definitions/JoinOperator"
+          },
+          "maxItems": 2
+        },
         "ListColumns": {
           "type": "array",
           "insertionOrder": false,
@@ -172,6 +195,49 @@
       "required": [
         "JoinColumns",
         "ListColumns"
+      ],
+      "additionalProperties": false
+    },
+    "AllowedAnalysis": {
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 200,
+      "pattern": "(ANY_QUERY|arn:[\\w]{3}:cleanrooms:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:membership/[\\d\\w-]+/analysistemplate/[\\d\\w-]+)"
+    },
+    "AllowedAnalyses": {
+      "type": "array",
+      "insertionOrder": false,
+      "minItems": 0,
+      "items": {
+        "$ref": "#/definitions/AllowedAnalysis"
+      }
+    },
+    "AllowedAnalysisProvider": {
+      "type": "string",
+      "minLength": 12,
+      "maxLength": 12,
+      "pattern": "\\d+"
+    },
+    "AllowedAnalysisProviders": {
+      "type": "array",
+      "insertionOrder": false,
+      "minItems": 0,
+      "items": {
+        "$ref": "#/definitions/AllowedAnalysisProvider"
+      }
+    },
+    "AnalysisRuleCustom": {
+      "type": "object",
+      "properties": {
+        "AllowedAnalyses": {
+          "$ref": "#/definitions/AllowedAnalyses"
+        },
+        "AllowedAnalysisProviders": {
+          "$ref": "#/definitions/AllowedAnalysisProviders"
+        }
+      },
+      "required": [
+        "AllowedAnalyses"
       ],
       "additionalProperties": false
     },
@@ -215,6 +281,19 @@
             "Aggregation"
           ],
           "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "title": "Custom",
+          "properties": {
+            "Custom": {
+              "$ref": "#/definitions/AnalysisRuleCustom"
+            }
+          },
+          "required": [
+            "Custom"
+          ],
+          "additionalProperties": false
         }
       ]
     },
@@ -222,7 +301,8 @@
       "type": "string",
       "enum": [
         "AGGREGATION",
-        "LIST"
+        "LIST",
+        "CUSTOM"
       ]
     },
     "GlueTableReference": {
@@ -396,7 +476,8 @@
         "glue:BatchGetPartition",
         "glue:GetSchemaVersion",
         "cleanrooms:ListTagsForResource",
-        "cleanrooms:TagResource"
+        "cleanrooms:TagResource",
+        "cleanrooms:ListConfiguredTables"
       ]
     },
     "read": {
@@ -416,17 +497,34 @@
         "cleanrooms:DeleteConfiguredTableAnalysisRule",
         "cleanrooms:ListTagsForResource",
         "cleanrooms:TagResource",
-        "cleanrooms:UntagResource"
+        "cleanrooms:UntagResource",
+        "glue:GetDatabase",
+        "glue:GetDatabases",
+        "glue:GetTable",
+        "glue:GetTables",
+        "glue:GetPartition",
+        "glue:GetPartitions",
+        "glue:BatchGetPartition",
+        "glue:GetSchemaVersion"
       ]
     },
     "delete": {
       "permissions": [
         "cleanrooms:DeleteConfiguredTable",
         "cleanrooms:GetConfiguredTable",
+        "cleanrooms:ListConfiguredTables",
         "cleanrooms:GetConfiguredTableAnalysisRule",
         "cleanrooms:DeleteConfiguredTableAnalysisRule",
         "cleanrooms:ListTagsForResource",
-        "cleanrooms:UntagResource"
+        "cleanrooms:UntagResource",
+        "glue:GetDatabase",
+        "glue:GetDatabases",
+        "glue:GetTable",
+        "glue:GetTables",
+        "glue:GetPartition",
+        "glue:GetPartitions",
+        "glue:BatchGetPartition",
+        "glue:GetSchemaVersion"
       ]
     },
     "list": {
