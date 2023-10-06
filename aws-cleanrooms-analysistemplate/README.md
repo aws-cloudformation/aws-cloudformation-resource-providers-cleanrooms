@@ -1,10 +1,8 @@
-# AWS::CleanRooms::Membership
+# AWS::CleanRooms::AnalysisTemplate
 
-Congratulations on starting development!
+Congratulations on starting development of a new resource! Next steps:
 
-Next steps:
-
-1. Write the JSON schema describing your resource, `aws-cleanrooms-membership.json`
+1. Write the JSON schema describing your resource, `aws-cleanrooms-analysistemplate.json`
 1. Implement your resource handlers.
 
 The RPDK will automatically generate the correct resource model from the schema whenever the project is built via Maven. You can also do this manually with the following command: `cfn generate`.

@@ -3,12 +3,9 @@ package software.amazon.cleanrooms.configuredtable
 import software.amazon.awssdk.services.cleanrooms.CleanRoomsClient
 import software.amazon.awssdk.services.cleanrooms.model.AggregateColumn
 import software.amazon.awssdk.services.cleanrooms.model.AggregationConstraint
-import software.amazon.awssdk.services.cleanrooms.model.AnalysisRuleAggregation
-import software.amazon.awssdk.services.cleanrooms.model.AnalysisRuleList
 import software.amazon.awssdk.services.cleanrooms.model.ConfiguredTable
 import software.amazon.awssdk.services.cleanrooms.model.DeleteConfiguredTableRequest
 import software.amazon.awssdk.services.cleanrooms.model.ConfiguredTableAnalysisRule
-import software.amazon.awssdk.services.cleanrooms.model.ConfiguredTableAnalysisRulePolicyV1
 import software.amazon.awssdk.services.cleanrooms.model.ConfiguredTableAnalysisRulePolicy as SdkConfiguredTableAnalysisRulePolicy
 import software.amazon.awssdk.services.cleanrooms.model.CreateConfiguredTableAnalysisRuleRequest
 import software.amazon.awssdk.services.cleanrooms.model.CreateConfiguredTableRequest
@@ -21,16 +18,16 @@ import software.amazon.awssdk.services.cleanrooms.model.ListConfiguredTablesRequ
 import software.amazon.awssdk.services.cleanrooms.model.ListConfiguredTablesResponse
 import software.amazon.awssdk.services.cleanrooms.model.ListTagsForResourceRequest
 import software.amazon.awssdk.services.cleanrooms.model.UpdateConfiguredTableRequest
-import software.amazon.awssdk.services.cleanrooms.model.UpdateConfiguredTableResponse
 import software.amazon.awssdk.services.cleanrooms.model.ScalarFunctions
 import software.amazon.awssdk.services.cleanrooms.model.TableReference
 import software.amazon.awssdk.services.cleanrooms.model.TagResourceRequest
 import software.amazon.awssdk.services.cleanrooms.model.UntagResourceRequest
 import software.amazon.awssdk.services.cleanrooms.model.UpdateConfiguredTableAnalysisRuleRequest
-import software.amazon.awssdk.services.cloudformation.model.Tag
-import software.amazon.cleanrooms.configuredtable.typemapper.toCfnException
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy
-import software.amazon.cloudformation.proxy.Logger
+import software.amazon.awssdk.services.cleanrooms.model.AnalysisRuleAggregation as SdkAnalysisRuleAggregation
+import software.amazon.awssdk.services.cleanrooms.model.AnalysisRuleList as SdkAnalysisRuleList
+import software.amazon.awssdk.services.cleanrooms.model.AnalysisRuleCustom as SdkAnalysisRuleCustom
+import software.amazon.awssdk.services.cleanrooms.model.ConfiguredTableAnalysisRulePolicyV1 as SdkConfiguredTableAnalysisRulePolicyV1
 
 /**
  * Method to parse configuredTableIdentifier from primaryIdentifier if it exists returns null otherwise
@@ -303,13 +300,14 @@ fun untagResource(
 private fun AnalysisRule.toSdkModel(): SdkConfiguredTableAnalysisRulePolicy {
     val policyV1 = policy.v1
     return when (type) {
-        ConfiguredTableAnalysisRulePolicyV1.Type.AGGREGATION.name ->
+        SdkConfiguredTableAnalysisRulePolicyV1.Type.AGGREGATION.name ->
             SdkConfiguredTableAnalysisRulePolicy.builder()
                 .v1(
-                    ConfiguredTableAnalysisRulePolicyV1.builder()
+                    SdkConfiguredTableAnalysisRulePolicyV1.builder()
                         .aggregation(
-                            AnalysisRuleAggregation.builder()
+                            SdkAnalysisRuleAggregation.builder()
                                 .joinColumns(policyV1.aggregation.joinColumns)
+                                .allowedJoinOperatorsWithStrings(policyV1.aggregation.allowedJoinOperators)
                                 .joinRequired(policyV1.aggregation.joinRequired)
                                 .dimensionColumns(policyV1.aggregation.dimensionColumns)
                                 .aggregateColumns(
@@ -339,14 +337,32 @@ private fun AnalysisRule.toSdkModel(): SdkConfiguredTableAnalysisRulePolicy {
                         .build()
                 )
                 .build()
-        ConfiguredTableAnalysisRulePolicyV1.Type.LIST.name ->
+        SdkConfiguredTableAnalysisRulePolicyV1.Type.LIST.name ->
             SdkConfiguredTableAnalysisRulePolicy.builder()
                 .v1(
-                    ConfiguredTableAnalysisRulePolicyV1.builder()
+                    SdkConfiguredTableAnalysisRulePolicyV1.builder()
                         .list(
-                            AnalysisRuleList.builder()
+                            SdkAnalysisRuleList.builder()
                                 .joinColumns(policyV1.list.joinColumns)
+                                .allowedJoinOperatorsWithStrings(policyV1.list.allowedJoinOperators)
                                 .listColumns(policyV1.list.listColumns)
+                                .build()
+                        )
+                        .build()
+                )
+                .build()
+        SdkConfiguredTableAnalysisRulePolicyV1.Type.CUSTOM.name ->
+            SdkConfiguredTableAnalysisRulePolicy.builder()
+                .v1(
+                    SdkConfiguredTableAnalysisRulePolicyV1.builder()
+                        .custom(
+                            SdkAnalysisRuleCustom.builder()
+                                .apply {
+                                    allowedAnalyses(policyV1.custom.allowedAnalyses)
+                                    policyV1.custom.allowedAnalysisProviders?.let {
+                                        allowedAnalysisProviders(it)
+                                    }
+                                }
                                 .build()
                         )
                         .build()

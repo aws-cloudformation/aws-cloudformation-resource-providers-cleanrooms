@@ -1,6 +1,7 @@
-package software.amazon.cleanrooms.membership
+package software.amazon.cleanrooms.analysistemplate
 
 import software.amazon.awssdk.services.cleanrooms.CleanRoomsClient
+import software.amazon.cleanrooms.analysistemplate.typemapper.toCfnException
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy
 import software.amazon.cloudformation.proxy.Logger
 import software.amazon.cloudformation.proxy.OperationStatus
@@ -15,32 +16,32 @@ class UpdateHandler : BaseHandler<CallbackContext?>() {
         logger: Logger
     ): ProgressEvent<ResourceModel, CallbackContext?> {
         val requestAccountId = request.awsAccountId
-        logger.log("Inside UPDATE handler for Membership resource. Request AWS AccountId:$requestAccountId")
+        logger.log("Inside UPDATE handler for AnalysisTemplate resource. Request AWS AccountId:$requestAccountId")
 
-        // Verify Membership exists
+        // Verify ConfiguredTable exists
         val readResult = ReadHandler().handleRequest(proxy, request, callbackContext, logger)
         if (readResult.isFailed) {
             return readResult
         }
 
         return try {
-            with(readResult.resourceModel) {
-                logger.log("QueryLogStatus in readResult :${queryLogStatus}")
-                val desiredResourceModel = request.desiredResourceState
-                logger.log("QueryLogStatus in desiredResourceModel :${desiredResourceModel.queryLogStatus}")
-                val cleanRoomsClient = ClientBuilder.getCleanRoomsClient()
-                if (queryLogStatus != desiredResourceModel.queryLogStatus || defaultResultConfiguration != desiredResourceModel.defaultResultConfiguration) {
-                    logger.log("Updating Membership. MembershipIdentifier from resourceModel: ${desiredResourceModel.membershipIdentifier}")
-                    updateMembership(desiredResourceModel, proxy, cleanRoomsClient)
-                }
-                updateTags(
-                    request.desiredResourceTags?: emptyMap(),
-                    request.previousResourceTags?: emptyMap(),
-                    arn,
-                    proxy,
-                    cleanRoomsClient
-                )
-            }
+            val desiredResourceModel = request.desiredResourceState
+            val cleanRoomsClient = ClientBuilder.getCleanRoomsClient()
+
+            logger.log("UpdateHandler AnalysisTemplateIdentifier from resourceModel: ${desiredResourceModel.analysisTemplateIdentifier}")
+
+
+            logger.log("Updating AnalysisTemplate")
+            updateAnalysisTemplate(desiredResourceModel, proxy, cleanRoomsClient)
+
+            updateTags(
+                request.desiredResourceTags?: emptyMap(),
+                request.previousResourceTags?: emptyMap(),
+                readResult.resourceModel.arn,
+                proxy,
+                cleanRoomsClient
+            )
+
             ReadHandler().handleRequest(proxy, request, callbackContext, logger)
         } catch (e: Exception) {
             val error = e.toCfnException()
@@ -57,9 +58,6 @@ class UpdateHandler : BaseHandler<CallbackContext?>() {
         }
     }
 
-    /**
-     * Takes a diff of tags to add or remove and updates them as necessary.
-     */
     private fun updateTags(
         desiredResourceTags: Map<String, String>,
         previousResourceTags: Map<String, String>,

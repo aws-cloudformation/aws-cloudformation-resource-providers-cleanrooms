@@ -103,7 +103,9 @@
         "cleanrooms:CreateConfiguredTableAssociation",
         "iam:PassRole",
         "cleanrooms:ListTagsForResource",
-        "cleanrooms:TagResource"
+        "cleanrooms:TagResource",
+        "cleanrooms:GetConfiguredTableAssociation",
+        "cleanrooms:ListConfiguredTableAssociations"
       ]
     },
     "read": {
@@ -115,6 +117,7 @@
     "update": {
       "permissions": [
         "cleanrooms:UpdateConfiguredTableAssociation",
+        "cleanrooms:GetConfiguredTableAssociation",
         "iam:PassRole",
         "cleanrooms:ListTagsForResource",
         "cleanrooms:TagResource",
@@ -123,7 +126,11 @@
     },
     "delete": {
       "permissions": [
-        "cleanrooms:DeleteConfiguredTableAssociation"
+        "cleanrooms:DeleteConfiguredTableAssociation",
+        "cleanrooms:GetConfiguredTableAssociation",
+        "cleanrooms:ListConfiguredTableAssociations",
+        "cleanrooms:ListTagsForResource",
+        "cleanrooms:UntagResource"
       ]
     },
     "list": {

@@ -1,8 +1,15 @@
 package software.amazon.cleanrooms.membership
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.junit.Test
 import software.amazon.awssdk.services.cleanrooms.model.Membership
+import software.amazon.awssdk.services.cleanrooms.model.MembershipProtectedQueryOutputConfiguration
+import software.amazon.awssdk.services.cleanrooms.model.MembershipProtectedQueryResultConfiguration
 import software.amazon.awssdk.services.cleanrooms.model.MembershipQueryLogStatus
 import software.amazon.awssdk.services.cleanrooms.model.MembershipSummary
+import software.amazon.awssdk.services.cleanrooms.model.ProtectedQueryS3OutputConfiguration
+import software.amazon.awssdk.services.cleanrooms.model.ResultFormat
+import software.amazon.cleanrooms.membership.typemapper.toResourceModel
 import software.amazon.cleanrooms.membership.typemapper.toResourceModelTags
 
 
@@ -38,6 +45,27 @@ val TEST_BASE_MEMBERSHIP_WITH_REQUIRED_FIELDS: Membership = Membership.builder()
     .queryLogStatus(MembershipQueryLogStatus.ENABLED)
     .build()
 
+val TEST_MEMBERSHIP_WITH_RESULT_CONFIGURATION  = TEST_BASE_MEMBERSHIP_WITH_REQUIRED_FIELDS.copy {
+    it.defaultResultConfiguration(MembershipProtectedQueryResultConfiguration.builder()
+        .outputConfiguration(
+            MembershipProtectedQueryOutputConfiguration.builder()
+                .s3(
+                    ProtectedQueryS3OutputConfiguration.builder()
+                        .resultFormat(ResultFormat.CSV.name)
+                        .bucket("testbucket")
+                        .keyPrefix("testkeyprefix")
+                        .build()
+                )
+                .build()
+        )
+        .roleArn("0000000000000000000000000:role/TestRole")
+        .build())
+}
+
+val TEST_MEMBERSHIP_RESPONSE_WITH_ALL_ARGS: Membership = TEST_MEMBERSHIP_WITH_RESULT_CONFIGURATION.toBuilder()
+    .arn(TEST_MEMBERSHIP_ARN)
+    .id(TEST_MEMBERSHIP_ID)
+    .build()
 
 val TEST_MEMBERSHIP_RESPONSE_WITH_REQUIRED_FIELDS: Membership = TEST_BASE_MEMBERSHIP_WITH_REQUIRED_FIELDS.copy {
     it.id(TEST_MEMBERSHIP_ID).arn(TEST_MEMBERSHIP_ARN)

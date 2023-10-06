@@ -198,7 +198,9 @@
         "cleanrooms:GetCollaboration",
         "cleanrooms:ListMembers",
         "cleanrooms:ListTagsForResource",
-        "cleanrooms:TagResource"
+        "cleanrooms:TagResource",
+        "cleanrooms:GetCollaboration",
+        "cleanrooms:ListCollaborations"
       ]
     },
     "read": {
@@ -223,7 +225,9 @@
         "cleanrooms:DeleteCollaboration",
         "cleanrooms:GetCollaboration",
         "cleanrooms:ListTagsForResource",
-        "cleanrooms:UntagResource"
+        "cleanrooms:UntagResource",
+        "cleanrooms:ListMembers",
+        "cleanrooms:ListCollaborations"
       ]
     },
     "list": {

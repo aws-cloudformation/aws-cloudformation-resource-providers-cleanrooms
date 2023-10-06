@@ -5,9 +5,9 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>software.amazon.cleanrooms.membership</groupId>
-    <artifactId>aws-cleanrooms-membership-handler</artifactId>
-    <name>aws-cleanrooms-membership-handler</name>
+    <groupId>software.amazon.cleanrooms.analysistemplate</groupId>
+    <artifactId>aws-cleanrooms-analysistemplate-handler</artifactId>
+    <name>aws-cleanrooms-analysistemplate-handler</name>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -31,23 +31,11 @@
     </repositories>
 
     <dependencies>
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>bom</artifactId>
-            <version>2.20.138</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>s3</artifactId>
-            <version>2.20.138</version>
-        </dependency>
         <!-- https://mvnrepository.com/artifact/software.amazon.awssdk/cleanrooms -->
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>cleanrooms</artifactId>
-            <version>2.20.138</version>
+            <version>2.20.119</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/software.amazon.cloudformation/aws-cloudformation-rpdk-java-plugin -->
         <dependency>
@@ -55,12 +43,12 @@
             <artifactId>aws-cloudformation-rpdk-java-plugin</artifactId>
             <version>2.0.16</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-core -->
         <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>sdk-core</artifactId>
-            <version>2.20.138</version>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-core</artifactId>
+            <version>1.12.522</version>
         </dependency>
-
         <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -72,19 +60,19 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>2.20.0</version>
+            <version>3.0.0-alpha1</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.20.0</version>
+            <version>3.0.0-alpha1</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.20.0</version>
+            <version>3.0.0-alpha1</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.assertj/assertj-core -->
@@ -105,23 +93,24 @@
         <dependency>
             <groupId>io.mockk</groupId>
             <artifactId>mockk-jvm</artifactId>
-            <version>1.13.7</version>
+            <version>1.13.5</version>
             <scope>test</scope>
         </dependency>
+
 
         <!-- TODO : remove mockito and mockito-core after all files converted to kotlin. -->
         <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.5.0</version>
+            <version>5.4.0</version>
             <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.mockito/mockito-junit-jupiter -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>5.5.0</version>
+            <version>5.4.0</version>
             <scope>test</scope>
         </dependency>
         <!-- END TODO -->
@@ -329,19 +318,20 @@
                 <version>0.8.7</version>
                 <configuration>
                     <excludes>
-                        <exclude>**/BaseConfiguration*</exclude>
                         <exclude>**/ExceptionMapper*</exclude>
                         <exclude>**/Configuration*</exclude>
                         <exclude>**/CallbackContext*</exclude>
                         <exclude>**/ClientBuilder*</exclude>
                         <exclude>**/Tagging*</exclude>
+                        <exclude>**/BaseConfiguration*</exclude>
                         <exclude>**/BaseHandler*</exclude>
                         <exclude>**/HandlerWrapper*</exclude>
                         <exclude>**/ResourceModel*</exclude>
                         <exclude>**/ClientBuilder*</exclude>
                         <exclude>**/ExceptionHandler*</exclude>
+                        <exclude>**/ResourceModelConverter*</exclude>
                         <exclude>**/RequestTranslator*</exclude>
-                        <exclude>**/HandlerCommon*</exclude>
+                        <exclude>**/typemapper/*</exclude>
                     </excludes>
                 </configuration>
                 <executions>
@@ -390,7 +380,7 @@
             <resource>
                 <directory>${project.basedir}</directory>
                 <includes>
-                    <include>aws-cleanrooms-membership.json</include>
+                    <include>aws-cleanrooms-analysistemplate.json</include>
                 </includes>
             </resource>
         </resources>
